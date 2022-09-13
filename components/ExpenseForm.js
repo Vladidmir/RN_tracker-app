@@ -13,17 +13,31 @@ const ExpenseForm = ({
   submitButtonLabel,
   defaultValues,
 }) => {
+  const randomNumber = (rage) => {
+    let formated = (Math.floor(Math.random() * rage) + 1).toString();
+    if (formated < 10) {
+      formated = `0${formated}`;
+    }
+    return formated;
+  };
+
   const [inputsValue, setInputsValue] = React.useState({
     amount: {
-      value: defaultValues ? defaultValues.amount.toString() : "",
+      value: defaultValues
+        ? defaultValues.amount.toString()
+        : randomNumber(1000),
       isValid: true,
     },
     date: {
-      value: defaultValues ? getFormattedDate(defaultValues.date) : "",
+      value: defaultValues
+        ? getFormattedDate(defaultValues.date)
+        : `2022-09-${randomNumber(12)}`,
       isValid: true,
     },
     description: {
-      value: defaultValues ? defaultValues.description : "",
+      value: defaultValues
+        ? defaultValues.description
+        : `bla ${Math.floor(Math.random() * 10001) + 2}`,
       isValid: true,
     },
   });

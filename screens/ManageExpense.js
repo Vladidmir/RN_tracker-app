@@ -35,7 +35,7 @@ const ManageExpense = ({ route, navigation }) => {
     setSubmitting(true);
     deleteExpense(expenseId); //local
     await deleteExpenseDB(expenseId);
-    navigation.goBack();
+    // navigation.goBack();
   };
   const cencelHandler = () => {
     navigation.goBack();
@@ -46,11 +46,13 @@ const ManageExpense = ({ route, navigation }) => {
     if (isEditing) {
       updateExpence(expenseId, expenseData); //local
       await updateExpenseDB(expenseId, expenseData); //db
+      setSubmitting(false);
     } else {
       const id = await storeExpenseDB(expenseData);
       addExpense({ ...expenseData, id });
+      setSubmitting(false);
     }
-    navigation.goBack();
+    // navigation.goBack();
   };
 
   if (isSubmitting) {
