@@ -2,7 +2,6 @@ import React from "react";
 
 import ExpensesOutput from "../components/ExpensesOutput";
 import LoadingOverlay from "../components/LoadingOverlay";
-import ErrorOverlay from "../components/ErrorOverlay";
 
 import { ExpensesContext } from "../store/context/expensesContext";
 import { getDateMinusDays } from "../utils/date";
