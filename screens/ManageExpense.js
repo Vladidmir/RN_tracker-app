@@ -1,24 +1,25 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { StyleSheet, View } from "react-native";
 
 import ExpenseForm from "../components/ExpenseForm";
 import IconButton from "../components/IconButton";
 import LoadingOverlay from "../components/LoadingOverlay";
+import ErrorOverlay from "../components/ErrorOverlay";
 
-import { ExpensesContext } from "../store/context/expensesContext.js";
+//redux
 import {
-  storeExpenseDB,
-  deleteExpenseDB,
-  updateExpenseDB,
-} from "../utils/http.js";
+  deleteExpense,
+  addExpense,
+  updateExpense,
+} from "../store/slices/expensesSlice";
 
 import { GlobalStyles } from "../constants/styles";
 const { error500, primary800, primary200 } = GlobalStyles.colors;
 
 const ManageExpense = ({ route, navigation }) => {
-  const [isSubmitting, setSubmitting] = React.useState(false);
-  const { deleteExpense, addExpense, updateExpence, expenses } =
-    React.useContext(ExpensesContext);
+  const { expenses, status } = useSelector((state) => state.expensesReducer);
+  const dispatch = useDispatch();
 
   const expenseId = route.params?.expenseId;
   const isEditing = !!expenseId;
@@ -32,53 +33,50 @@ const ManageExpense = ({ route, navigation }) => {
   }, [expenseId, isEditing]);
 
   const deleteExpenseHandler = async () => {
-    setSubmitting(true);
-    deleteExpense(expenseId); //local
-    await deleteExpenseDB(expenseId);
-    // navigation.goBack();
+    dispatch(deleteExpense(expenseId));
+    navigation.goBack();
   };
   const cencelHandler = () => {
     navigation.goBack();
   };
 
   const confirmHandler = async (expenseData) => {
-    setSubmitting(true);
     if (isEditing) {
-      updateExpence(expenseId, expenseData); //local
-      await updateExpenseDB(expenseId, expenseData); //db
-      setSubmitting(false);
+      dispatch(updateExpense({ id: expenseId, data: expenseData }));
     } else {
-      const id = await storeExpenseDB(expenseData);
-      addExpense({ ...expenseData, id });
-      setSubmitting(false);
+      dispatch(addExpense(expenseData));
     }
-    // navigation.goBack();
+    navigation.goBack();
   };
 
-  if (isSubmitting) {
-    return <LoadingOverlay />;
-  }
+  const spinner = status === "loading" && <LoadingOverlay />;
+  const errorMessage = status === "error" && <ErrorOverlay />;
 
   return (
-    <View style={s.rootContainer}>
-      <ExpenseForm
-        onCancel={cencelHandler}
-        submitButtonLabel={isEditing ? "Update" : "Add"}
-        onSubmit={confirmHandler}
-        isEditing={isEditing}
-        defaultValues={selectedExpense}
-      />
-      {isEditing && (
-        <View style={s.deleteContainer}>
-          <IconButton
-            icon="trash"
-            color={error500}
-            size={36}
-            onPress={deleteExpenseHandler}
-          />
-        </View>
-      )}
-    </View>
+    <>
+      {errorMessage}
+      <View style={s.rootContainer}>
+        <ExpenseForm
+          onCancel={cencelHandler}
+          submitButtonLabel={isEditing ? "Update" : "Add"}
+          onSubmit={confirmHandler}
+          isEditing={isEditing}
+          defaultValues={selectedExpense}
+        />
+        {isEditing && (
+          <View style={s.deleteContainer}>
+            <IconButton
+              icon="trash"
+              color={error500}
+              size={36}
+              onPress={deleteExpenseHandler}
+            />
+
+            {spinner}
+          </View>
+        )}
+      </View>
+    </>
   );
 };
 
