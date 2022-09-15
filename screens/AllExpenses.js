@@ -1,10 +1,11 @@
-import { useContext } from "react";
+import React from "react";
+import { useSelector } from "react-redux";
 
 import ExpensesOutput from "../components/ExpensesOutput";
 
-import { ExpensesContext } from "../store/context/expensesContext";
 const ALlExpenses = () => {
-  const { expenses } = useContext(ExpensesContext);
+  const { expenses } = useSelector((state) => state.expensesReducer);
+
   return (
     <ExpensesOutput
       expenses={expenses}

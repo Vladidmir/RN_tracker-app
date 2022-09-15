@@ -1,22 +1,19 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import ExpensesOutput from "../components/ExpensesOutput";
 import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorOverlay from "../components/ErrorOverlay";
 
-import { ExpensesContext } from "../store/context/expensesContext";
+import { fetchExpenses } from "../store/slices/expensesSlice";
 import { getDateMinusDays } from "../utils/date";
-import { fetchExpensesDB } from "../utils/http";
 
 const RecentExpenses = () => {
-  const [isLoading, setLoading] = React.useState(true);
-  const { setExpenses, expenses } = React.useContext(ExpensesContext);
+  const dispatch = useDispatch();
+  const { expenses, status } = useSelector((state) => state.expensesReducer);
 
   React.useEffect(() => {
-    fetchExpensesDB().then((items) => {
-      setExpenses(items);
-      setLoading(false);
-    });
+    dispatch(fetchExpenses());
   }, []);
 
   const recentExpenses = expenses.filter((expense) => {
@@ -25,8 +22,12 @@ const RecentExpenses = () => {
     return expense.date > date7DayesAgo && expense.date <= today;
   });
 
-  if (isLoading) {
+  if (status === "loading") {
     return <LoadingOverlay />;
+  }
+
+  if (status === "error") {
+    return <ErrorOverlay />;
   }
 
   return (
